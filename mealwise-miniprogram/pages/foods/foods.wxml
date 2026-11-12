@@ -1,0 +1,31 @@
+<view class="page">
+  <view class="search">
+    <input class="search__input" value="{{keyword}}" bindinput="onKeyword" bindconfirm="search"
+           placeholder="搜索食物名称，如 米饭" confirm-type="search" />
+    <view class="search__btn" bindtap="search">搜索</view>
+  </view>
+
+  <view class="meta muted" wx:if="{{total}}">共 {{total}} 种食物</view>
+
+  <view class="card food" wx:for="{{list}}" wx:key="id">
+    <view class="food__main">
+      <view class="food__name">{{item.name}}</view>
+      <view class="muted">{{item.category}}<text wx:if="{{item.unitName}}"> · 1{{item.unitName}}≈{{item.unitWeightG}}g</text></view>
+      <view class="food__tags" wx:if="{{item.allergens.length}}">
+        <text class="tag" wx:for="{{item.allergens}}" wx:key="*this" wx:for-item="a">{{a}}</text>
+      </view>
+    </view>
+    <view class="food__cal">
+      <view class="food__cal-value">{{item.caloriesPer100g}}</view>
+      <view class="food__cal-unit">kcal/100g</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{loading && !list.length}}">加载中…</view>
+  <view class="empty" wx:if="{{!loading && !list.length && !error}}">没有找到匹配的食物</view>
+  <view class="card" wx:if="{{error}}">
+    <view class="empty">{{error}}</view>
+    <button class="btn-ghost" bindtap="reload">重试</button>
+  </view>
+  <view class="empty" wx:if="{{finished && list.length}}">— 到底了 —</view>
+</view>

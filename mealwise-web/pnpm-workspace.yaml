@@ -1,0 +1,9 @@
+# pnpm 11 配置：项目依赖扁平安装，避免 Windows 下 junction 层级过深导致的解析问题。
+nodeLinker: hoisted
+
+# 显式拒绝依赖的安装脚本：
+# - esbuild 的平台二进制由 @esbuild/win32-x64 直接提供，无需 postinstall；
+# - vue-demi 面向 Vue 3 的默认入口已可用，postinstall 在受限沙箱中会触发 EPERM。
+allowBuilds:
+  esbuild: false
+  vue-demi: false

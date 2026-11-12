@@ -1,0 +1,48 @@
+<view class="page">
+  <view class="card">
+    <view class="card__title">身体资料</view>
+    <view class="muted">用于按 Mifflin-St Jeor 估算基础代谢，再乘以活动系数得到每日建议摄入。</view>
+
+    <view class="divider"></view>
+
+    <view class="field">
+      <view class="field__label">性别</view>
+      <radio-group class="radios" bindchange="onGenderChange">
+        <label class="radio">
+          <radio value="MALE" checked="{{gender === 'MALE'}}" color="#3fb37d" />男
+        </label>
+        <label class="radio">
+          <radio value="FEMALE" checked="{{gender === 'FEMALE'}}" color="#3fb37d" />女
+        </label>
+      </radio-group>
+    </view>
+
+    <view class="field">
+      <view class="field__label">身高（cm）</view>
+      <input class="field__input" type="digit" data-field="heightCm" value="{{heightCm}}"
+             bindinput="onInput" placeholder="100 - 250" />
+    </view>
+
+    <view class="field">
+      <view class="field__label">体重（kg）</view>
+      <input class="field__input" type="digit" data-field="weightKg" value="{{weightKg}}"
+             bindinput="onInput" placeholder="30 - 300" />
+    </view>
+
+    <view class="field">
+      <view class="field__label">年龄（可选，留空按 30 岁估算）</view>
+      <input class="field__input" type="number" data-field="age" value="{{age}}"
+             bindinput="onInput" placeholder="10 - 100" />
+    </view>
+
+    <button class="btn-primary" loading="{{saving}}" disabled="{{saving || loading}}" bindtap="save">保存</button>
+  </view>
+
+  <view class="card">
+    <view class="card__title">计算口径</view>
+    <view class="muted">男：10×体重 + 6.25×身高 − 5×年龄 + 5</view>
+    <view class="muted">女：10×体重 + 6.25×身高 − 5×年龄 − 161</view>
+    <view class="muted">建议热量 = BMR × 1.375（轻度活动）</view>
+    <view class="muted">蛋白 1.5 g/kg · 脂肪占总热量 25% · 其余碳水</view>
+  </view>
+</view>

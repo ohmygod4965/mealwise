@@ -1,0 +1,62 @@
+.search {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.search__input {
+  flex: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 22rpx 24rpx;
+  font-size: 28rpx;
+}
+
+.search__btn {
+  background: #3fb37d;
+  color: #fff;
+  border-radius: 16rpx;
+  padding: 22rpx 32rpx;
+  font-size: 28rpx;
+}
+
+.meta {
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.food {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+}
+
+.food__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+}
+
+.food__tags {
+  margin-top: 10rpx;
+  display: flex;
+  gap: 8rpx;
+}
+
+.food__cal {
+  text-align: right;
+  min-width: 150rpx;
+}
+
+.food__cal-value {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #237b53;
+}
+
+.food__cal-unit {
+  font-size: 20rpx;
+  color: #8a9a92;
+}

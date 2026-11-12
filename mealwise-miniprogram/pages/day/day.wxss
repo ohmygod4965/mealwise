@@ -1,0 +1,133 @@
+.datebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 0 8rpx;
+}
+
+.datebar__date {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f2d27;
+}
+
+.datebar__today {
+  font-size: 24rpx;
+  color: #237b53;
+  background: #eaf5ef;
+  border-radius: 999rpx;
+  padding: 8rpx 20rpx;
+}
+
+.datebar__cal {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #237b53;
+}
+
+.guide {
+  border: 2rpx solid #dff0e7;
+  background: #fbfefc;
+}
+
+.guide__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.guide__btn {
+  margin-top: 24rpx;
+}
+
+.totals {
+  display: flex;
+  justify-content: space-between;
+}
+
+.totals__item {
+  flex: 1;
+  text-align: center;
+}
+
+.totals__value {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1f2d27;
+}
+
+.totals__label {
+  font-size: 22rpx;
+  color: #8a9a92;
+  margin-top: 6rpx;
+}
+
+.metric {
+  margin-bottom: 26rpx;
+}
+
+.metric__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric__label {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.metric__foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22rpx;
+}
+
+.meal {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f3f1;
+}
+
+.meal:last-child {
+  border-bottom: none;
+}
+
+.meal__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.meal__cal {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #237b53;
+}
+
+.meal__micro {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+}
+
+.meal__add {
+  margin-top: 20rpx;
+  width: 100%;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+  font-size: 26rpx;
+}
+
+.item__name {
+  flex: 1;
+}
+
+.item__cal {
+  width: 160rpx;
+  text-align: right;
+  color: #5c6f66;
+}

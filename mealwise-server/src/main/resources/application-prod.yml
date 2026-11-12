@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:mealwise}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER:mealwise}
+    password: ${DB_PASSWORD:mealwise}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 3000
+
+jwt:
+  # 生产必须覆盖：32 字节以上的随机串
+  secret: ${JWT_SECRET}
+
+knife4j:
+  # 生产环境默认关闭在线文档，避免暴露接口
+  enable: false
+
+logging:
+  level:
+    com.mealwise: info

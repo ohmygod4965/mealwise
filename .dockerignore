@@ -1,0 +1,11 @@
+# 镜像构建上下文瘦身：这些目录镜像里用不到
+**/node_modules
+**/target
+.git
+.gitignore
+.tools
+.run
+mealwise-web
+mealwise-miniprogram
+tools
+*.log

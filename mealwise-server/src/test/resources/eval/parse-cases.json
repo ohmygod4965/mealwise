@@ -1,0 +1,113 @@
+[
+  {
+    "text": "中午吃了两碗米饭和一份鸡胸肉",
+    "status": "PARSED",
+    "items": [{"name": "米饭", "grams": 400}, {"name": "鸡胸肉", "grams": 150}]
+  },
+  {
+    "text": "午饭 米饭 200 克、鸡胸肉 150 克、西兰花 100 克",
+    "status": "PARSED",
+    "items": [{"name": "米饭", "grams": 200}, {"name": "鸡胸肉", "grams": 150}, {"name": "西兰花", "grams": 100}]
+  },
+  {
+    "text": "早上吃了两个鸡蛋和一杯纯牛奶",
+    "status": "PARSED",
+    "items": [{"name": "鸡蛋", "grams": 100}, {"name": "纯牛奶", "grams": 250}]
+  },
+  {
+    "text": "晚饭一碗米饭加一份牛里脊",
+    "status": "PARSED",
+    "items": [{"name": "米饭", "grams": 200}, {"name": "牛里脊", "grams": 150}]
+  },
+  {
+    "text": "晚上吃了西兰花 200 克",
+    "status": "PARSED",
+    "items": [{"name": "西兰花", "grams": 200}]
+  },
+  {
+    "text": "我吃了一碗半米饭",
+    "status": "PARSED",
+    "items": [{"name": "米饭", "grams": 300}]
+  },
+  {
+    "text": "下午加餐一个苹果",
+    "status": "PARSED",
+    "items": [{"name": "苹果", "grams": 200}]
+  },
+  {
+    "text": "来一份三文鱼和一份基围虾",
+    "status": "PARSED",
+    "items": [{"name": "三文鱼", "grams": 120}, {"name": "基围虾", "grams": 120}]
+  },
+  {
+    "text": "喝了一杯无糖豆浆",
+    "status": "PARSED",
+    "items": [{"name": "无糖豆浆", "grams": 250}]
+  },
+  {
+    "text": "早饭一根煮玉米",
+    "status": "PARSED",
+    "items": [{"name": "煮玉米", "grams": 200}]
+  },
+  {
+    "text": "吃了 250 克原味酸奶",
+    "status": "PARSED",
+    "items": [{"name": "原味酸奶", "grams": 250}]
+  },
+  {
+    "text": "晚餐一份意大利面(煮)",
+    "status": "PARSED",
+    "items": [{"name": "意大利面(煮)", "grams": 200}]
+  },
+  {
+    "text": "我吃了一份海带汤",
+    "status": "NEED_CLARIFICATION",
+    "questionTypes": ["UNKNOWN_FOOD"]
+  },
+  {
+    "text": "晚上吃了西兰花",
+    "status": "NEED_CLARIFICATION",
+    "questionTypes": ["AMBIGUOUS_QUANTITY"]
+  },
+  {
+    "text": "中午吃了两碗米饭和一份海带汤",
+    "status": "NEED_CLARIFICATION",
+    "questionTypes": ["UNKNOWN_FOOD"],
+    "items": [{"name": "米饭", "grams": 400}]
+  },
+  {
+    "text": "吃了一碗西兰花",
+    "status": "PARSED",
+    "items": [{"name": "西兰花", "grams": 100}]
+  },
+  {
+    "text": "今天中午 200 克米饭",
+    "status": "PARSED",
+    "items": [{"name": "米饭", "grams": 200}]
+  },
+  {
+    "text": "喝了一罐可乐",
+    "status": "PARSED",
+    "items": [{"name": "可乐", "grams": 330}]
+  },
+  {
+    "text": "吃了一把核桃",
+    "status": "PARSED",
+    "items": [{"name": "核桃", "grams": 30}]
+  },
+  {
+    "text": "晚上吃了一份猪里脊和 100 克菠菜",
+    "status": "PARSED",
+    "items": [{"name": "猪里脊", "grams": 150}, {"name": "菠菜", "grams": 100}]
+  },
+  {
+    "text": "中午吃了半个西瓜",
+    "status": "PARSED",
+    "items": [{"name": "西瓜", "grams": 150}]
+  },
+  {
+    "text": "来一碗小米粥",
+    "status": "PARSED",
+    "items": [{"name": "小米粥", "grams": 300}]
+  }
+]

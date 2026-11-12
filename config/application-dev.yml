@@ -1,0 +1,4 @@
+﻿# 仅用于本地开发：打开「每个请求打一行日志」，方便在日志窗口里看到网页动作
+logging:
+  level:
+    org.springframework.web.servlet.DispatcherServlet: DEBUG

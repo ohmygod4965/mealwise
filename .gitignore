@@ -1,0 +1,41 @@
+# ---- Java / Maven ----
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+hs_err_pid*
+replay_pid*
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# ---- Node / Vite ----
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# ---- 运行与本地数据 ----
+logs/
+*.log
+mysql-data/
+.env
+.env.local
+.DS_Store
+Thumbs.db
+
+# ---- 本项目临时产物 ----
+mealwise-server/src/main/resources/application-local.yml
+ai-local.yml

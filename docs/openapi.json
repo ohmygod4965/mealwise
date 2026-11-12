@@ -1,0 +1,2591 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Mealwise · 一餐热量与替换推荐 API",
+    "description": "记录一餐食物与克数，计算热量与三大营养素，并给出同类别替换建议。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:18080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "04. 用户资料",
+      "description": "查看/更新性别、身高、体重、年龄，用于计算每日建议摄入"
+    },
+    {
+      "name": "09. AI 审计（管理员）",
+      "description": "查看 AI 调用记录：谁、哪个能力、模型还是降级、耗时"
+    },
+    {
+      "name": "06. AI 能力",
+      "description": "饮食方案 / 自然语言录餐 / 营养问答 / Agent"
+    },
+    {
+      "name": "02. 食物库",
+      "description": "食物的增删改查与搜索"
+    },
+    {
+      "name": "07. 账号管理（管理员）",
+      "description": "列出用户、启用/禁用、改角色、重置密码、删除账号"
+    },
+    {
+      "name": "01. 认证",
+      "description": "注册与登录"
+    },
+    {
+      "name": "03. 餐次",
+      "description": "记录一餐、计算热量、获取替换建议"
+    },
+    {
+      "name": "05. 日记录",
+      "description": "按天查看早/午/晚餐与营养达成情况"
+    }
+  ],
+  "paths": {
+    "/api/users/me/profile": {
+      "put": {
+        "tags": [
+          "04. 用户资料"
+        ],
+        "summary": "更新身体资料",
+        "description": "身高 100-250cm、体重 30-300kg、年龄可选（缺省 30）",
+        "operationId": "updateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}/items/{itemId}": {
+      "put": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "修改食物项克数",
+        "operationId": "updateItem",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMealItemVO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "删除食物项",
+        "operationId": "deleteItem",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foods/{id}": {
+      "put": {
+        "tags": [
+          "02. 食物库"
+        ],
+        "summary": "编辑食物",
+        "description": "全量更新",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultFoodVO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "02. 食物库"
+        ],
+        "summary": "删除食物",
+        "description": "软删除：仅置 enabled=false，历史餐次不受影响",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals": {
+      "post": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "创建一餐",
+        "description": "mealType: BREAKFAST/LUNCH/DINNER/SNACK；eatenAt 省略则取当前时间",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMealRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMealVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}/items": {
+      "post": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "添加食物项",
+        "description": "克数必须大于 0；食物必须存在且上架",
+        "operationId": "addItem",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMealItemVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foods": {
+      "get": {
+        "tags": [
+          "02. 食物库"
+        ],
+        "summary": "分页查询",
+        "description": "支持按名称模糊搜索、按类别精确过滤；默认只返回上架食物",
+        "operationId": "page",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageResultFoodVO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "02. 食物库"
+        ],
+        "summary": "新增食物",
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoodSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultFoodVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "01. 认证"
+        ],
+        "summary": "注册",
+        "description": "用户名唯一；密码 BCrypt 存储；可选设置过敏原",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "01. 认证"
+        ],
+        "summary": "登录",
+        "description": "返回 JWT，有效期见 expiresIn（秒）",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/parse-meal": {
+      "post": {
+        "tags": [
+          "06. AI 能力"
+        ],
+        "summary": "自然语言录餐",
+        "description": "「中午吃了两碗米饭和一份鸡胸肉」→ 结构化食物项；匹配不到或克数不明时返回追问（status=NEED_CLARIFICATION）",
+        "operationId": "parseMeal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParseMealRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultParsedMealVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/meal-plan": {
+      "post": {
+        "tags": [
+          "06. AI 能力"
+        ],
+        "summary": "生成 AI 饮食方案",
+        "description": "按目标（减脂/维持/增肌）生成三餐，并联网核验每样食物的热量；无密钥时降级为本地搭配",
+        "operationId": "plan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiMealPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAiPlanVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/ask": {
+      "post": {
+        "tags": [
+          "06. AI 能力"
+        ],
+        "summary": "营养知识问答（小型 RAG）",
+        "description": "先用 BM25 在食物库 + 营养常识里检索，再让模型只依据资料回答；无密钥时返回检索要点",
+        "operationId": "ask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAskResponseVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/agent": {
+      "post": {
+        "tags": [
+          "06. AI 能力"
+        ],
+        "summary": "Agent 对话（LangChain4j @Tool 编排）",
+        "description": "模型自主决定调用 searchFood / createMeal / addMealItem / calculateCalories / getReplacements 的顺序；缺参数会追问，多轮记忆保留在 sessionId 维度",
+        "operationId": "agent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAgentChatResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/reset-password": {
+      "post": {
+        "tags": [
+          "07. 账号管理（管理员）"
+        ],
+        "summary": "重置密码",
+        "operationId": "resetPassword",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/status": {
+      "patch": {
+        "tags": [
+          "07. 账号管理（管理员）"
+        ],
+        "summary": "启用/禁用账号",
+        "operationId": "updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAdminUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/role": {
+      "patch": {
+        "tags": [
+          "07. 账号管理（管理员）"
+        ],
+        "summary": "修改角色",
+        "operationId": "updateRole",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRoleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAdminUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "04. 用户资料"
+        ],
+        "summary": "当前用户信息",
+        "description": "profileComplete=false 表示还没填身体资料",
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}/replacements": {
+      "get": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "替换建议",
+        "description": "strategy=higher（默认）/lower；无候选时返回空 suggestions + message",
+        "operationId": "replacements",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "strategy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "higher"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultReplacementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}/replacements/explain": {
+      "get": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "替换建议 + 人话解释",
+        "description": "先跑规则引擎拿到 Top3（排序/delta 不变），再由 LLM 把理由润色成一句话；模型不可用时回退规则原文",
+        "operationId": "explainReplacements",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "strategy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "higher"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultExplainResponseVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}/calories": {
+      "get": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "热量计算",
+        "description": "返回明细与合计（热量/蛋白质/脂肪/碳水），保留 1 位小数",
+        "operationId": "calories",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultMealCaloriesVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/days/{date}": {
+      "get": {
+        "tags": [
+          "05. 日记录"
+        ],
+        "summary": "指定日期记录",
+        "description": "date 格式 yyyy-MM-dd",
+        "operationId": "byDate",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultDayRecordVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/days/today": {
+      "get": {
+        "tags": [
+          "05. 日记录"
+        ],
+        "summary": "今日记录",
+        "operationId": "today",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultDayRecordVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "07. 账号管理（管理员）"
+        ],
+        "summary": "用户列表（分页 + 用户名模糊）",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageResultAdminUserVO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ai-audit": {
+      "get": {
+        "tags": [
+          "09. AI 审计（管理员）"
+        ],
+        "summary": "最近 AI 调用（倒序）",
+        "operationId": "recent",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListAiAuditLog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meals/{mealId}": {
+      "delete": {
+        "tags": [
+          "03. 餐次"
+        ],
+        "summary": "删除整餐",
+        "description": "连带删除食物项；用于撤销刚才的录入（AI 入账后可一键撤销）",
+        "operationId": "deleteMeal",
+        "parameters": [
+          {
+            "name": "mealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai/agent/{sessionId}": {
+      "delete": {
+        "tags": [
+          "06. AI 能力"
+        ],
+        "summary": "重置 Agent 会话记忆",
+        "operationId": "resetAgent",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}": {
+      "delete": {
+        "tags": [
+          "07. 账号管理（管理员）"
+        ],
+        "summary": "删除账号（连带删除其餐次）",
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserProfileRequest": {
+        "required": [
+          "gender",
+          "heightCm",
+          "weightKg"
+        ],
+        "type": "object",
+        "properties": {
+          "gender": {
+            "pattern": "^(MALE|FEMALE)$",
+            "type": "string"
+          },
+          "heightCm": {
+            "maximum": 250,
+            "exclusiveMaximum": false,
+            "minimum": 100,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "weightKg": {
+            "maximum": 300,
+            "exclusiveMaximum": false,
+            "minimum": 30,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "age": {
+            "maximum": 100,
+            "minimum": 10,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResultUserVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "UserVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "allergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gender": {
+            "type": "string"
+          },
+          "heightCm": {
+            "type": "number"
+          },
+          "weightKg": {
+            "type": "number"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "profileComplete": {
+            "type": "boolean"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateItemRequest": {
+        "required": [
+          "quantityG"
+        ],
+        "type": "object",
+        "properties": {
+          "quantityG": {
+            "type": "number"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MealItemVO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "foodId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "foodName": {
+            "type": "string"
+          },
+          "quantityG": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "carb": {
+            "type": "number"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ResultMealItemVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MealItemVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "FoodSaveRequest": {
+        "required": [
+          "caloriesPer100g",
+          "carbPer100g",
+          "category",
+          "fatPer100g",
+          "name",
+          "proteinPer100g"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 64,
+            "minLength": 0,
+            "type": "string"
+          },
+          "category": {
+            "maxLength": 32,
+            "minLength": 0,
+            "type": "string"
+          },
+          "caloriesPer100g": {
+            "minimum": 0,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "proteinPer100g": {
+            "minimum": 0,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "fatPer100g": {
+            "minimum": 0,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "carbPer100g": {
+            "minimum": 0,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "unitName": {
+            "maxLength": 16,
+            "minLength": 0,
+            "type": "string"
+          },
+          "unitWeightG": {
+            "minimum": 0.1,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "allergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FoodVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "caloriesPer100g": {
+            "type": "number"
+          },
+          "proteinPer100g": {
+            "type": "number"
+          },
+          "fatPer100g": {
+            "type": "number"
+          },
+          "carbPer100g": {
+            "type": "number"
+          },
+          "unitName": {
+            "type": "string"
+          },
+          "unitWeightG": {
+            "type": "number"
+          },
+          "allergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResultFoodVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FoodVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateMealRequest": {
+        "required": [
+          "mealType"
+        ],
+        "type": "object",
+        "properties": {
+          "mealType": {
+            "type": "string"
+          },
+          "eatenAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MealVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mealType": {
+            "type": "string"
+          },
+          "eatenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealItemVO"
+            }
+          }
+        }
+      },
+      "ResultMealVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MealVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "AddItemRequest": {
+        "required": [
+          "foodId",
+          "quantityG"
+        ],
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantityG": {
+            "type": "number"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "pattern": "^[a-zA-Z0-9_]{4,50}$",
+            "type": "string"
+          },
+          "password": {
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d).{8,32}$",
+            "type": "string"
+          },
+          "allergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LoginRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserVO"
+          }
+        }
+      },
+      "ResultAuthResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthResponse"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ParseMealRequest": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "ClarifyQuestionVO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ParsedItemVO": {
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "spokenName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "quantityText": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "carb": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "ParsedMealVO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParsedItemVO"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClarifyQuestionVO"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultParsedMealVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ParsedMealVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "AiMealPlanRequest": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "pattern": "^(FAT_LOSS|MAINTAIN|MUSCLE_GAIN)$",
+            "type": "string"
+          },
+          "targetCalories": {
+            "maximum": 5000,
+            "exclusiveMaximum": false,
+            "minimum": 800,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "mealTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "preferences": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "excludeAllergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AiPlanVO": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "type": "string"
+          },
+          "targetCalories": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealPlan"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/NutritionVO"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/Verification"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MealPlan": {
+        "type": "object",
+        "properties": {
+          "mealType": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanItem"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/NutritionVO"
+          }
+        }
+      },
+      "NutritionVO": {
+        "type": "object",
+        "properties": {
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "carb": {
+            "type": "number"
+          }
+        }
+      },
+      "PlanItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "nameEn": {
+            "type": "string"
+          },
+          "grams": {
+            "type": "number"
+          },
+          "kcalPer100g": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "carb": {
+            "type": "number"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "verifySource": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultAiPlanVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AiPlanVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "Verification": {
+        "type": "object",
+        "properties": {
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matched": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AskRequest": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          }
+        }
+      },
+      "AskResponseVO": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationVO"
+            }
+          }
+        }
+      },
+      "CitationVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "text": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultAskResponseVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskResponseVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "AgentChatRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AgentChatResponse": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "reply": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultAgentChatResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AgentChatResponse"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "required": [
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "password": {
+            "maxLength": 32,
+            "minLength": 8,
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d).+$",
+            "type": "string"
+          }
+        }
+      },
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateUserStatusRequest": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminUserVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "allergens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gender": {
+            "type": "string"
+          },
+          "profileComplete": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResultAdminUserVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminUserVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateUserRoleRequest": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "pattern": "^(ADMIN|USER)$",
+            "type": "string"
+          }
+        }
+      },
+      "FoodBriefVO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "caloriesPer100g": {
+            "type": "number"
+          }
+        }
+      },
+      "ItemReplacementVO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "originalFood": {
+            "$ref": "#/components/schemas/FoodBriefVO"
+          },
+          "quantityG": {
+            "type": "number"
+          },
+          "originalCalories": {
+            "type": "number"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionVO"
+            }
+          }
+        }
+      },
+      "ReplacementResponse": {
+        "type": "object",
+        "properties": {
+          "mealId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "strategy": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemReplacementVO"
+            }
+          },
+          "totalDeltaIfAllApplied": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultReplacementResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReplacementResponse"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionVO": {
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "caloriesPer100g": {
+            "type": "number"
+          },
+          "replacedCalories": {
+            "type": "number"
+          },
+          "deltaCalories": {
+            "type": "number"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "ExplainResponseVO": {
+        "type": "object",
+        "properties": {
+          "mealId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "strategy": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemExplainVO"
+            }
+          }
+        }
+      },
+      "ItemExplainVO": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "quantityG": {
+            "type": "number"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionExplainVO"
+            }
+          }
+        }
+      },
+      "ResultExplainResponseVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ExplainResponseVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionExplainVO": {
+        "type": "object",
+        "properties": {
+          "foodId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deltaCalories": {
+            "type": "number"
+          },
+          "ruleReason": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "fromLlm": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MealCaloriesVO": {
+        "type": "object",
+        "properties": {
+          "mealId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mealType": {
+            "type": "string"
+          },
+          "eatenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealItemVO"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/NutritionVO"
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalGrams": {
+            "type": "number"
+          }
+        }
+      },
+      "ResultMealCaloriesVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MealCaloriesVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResultFoodVO": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodVO"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultPageResultFoodVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultFoodVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "DayComparisonVO": {
+        "type": "object",
+        "properties": {
+          "calories": {
+            "$ref": "#/components/schemas/MetricComparisonVO"
+          },
+          "protein": {
+            "$ref": "#/components/schemas/MetricComparisonVO"
+          },
+          "fat": {
+            "$ref": "#/components/schemas/MetricComparisonVO"
+          },
+          "carb": {
+            "$ref": "#/components/schemas/MetricComparisonVO"
+          }
+        }
+      },
+      "DayRecordVO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealSummaryVO"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/NutritionVO"
+          },
+          "targets": {
+            "$ref": "#/components/schemas/NutritionTargetVO"
+          },
+          "comparison": {
+            "$ref": "#/components/schemas/DayComparisonVO"
+          }
+        }
+      },
+      "MealSummaryVO": {
+        "type": "object",
+        "properties": {
+          "mealId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "mealType": {
+            "type": "string"
+          },
+          "eatenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MealItemVO"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/NutritionVO"
+          }
+        }
+      },
+      "MetricComparisonVO": {
+        "type": "object",
+        "properties": {
+          "intake": {
+            "type": "number"
+          },
+          "target": {
+            "type": "number"
+          },
+          "diff": {
+            "type": "number"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "NutritionTargetVO": {
+        "type": "object",
+        "properties": {
+          "bmr": {
+            "type": "number"
+          },
+          "tdee": {
+            "type": "number"
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "fat": {
+            "type": "number"
+          },
+          "carb": {
+            "type": "number"
+          },
+          "formula": {
+            "type": "string"
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ResultDayRecordVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DayRecordVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResultAdminUserVO": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserVO"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultPageResultAdminUserVO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResultAdminUserVO"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      },
+      "AiAuditLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string"
+          },
+          "latencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResultListAiAuditLog": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AiAuditLog"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "登录接口返回的 token，直接粘贴，无需加 Bearer 前缀",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "x-openapi": {
+    "x-setting": {
+      "customCode": 200,
+      "language": "zh-CN",
+      "enableSwaggerModels": true,
+      "swaggerModelName": "Swagger Models",
+      "enableReloadCacheParameter": false,
+      "enableAfterScript": true,
+      "enableDocumentManage": true,
+      "enableVersion": false,
+      "enableRequestCache": true,
+      "enableFilterMultipartApis": false,
+      "enableFilterMultipartApiMethodType": "POST",
+      "enableHost": false,
+      "enableHostText": "",
+      "enableDynamicParameter": false,
+      "enableDebug": true,
+      "enableFooter": true,
+      "enableFooterCustom": false,
+      "enableSearch": true,
+      "enableOpenApi": true,
+      "enableHomeCustom": false,
+      "enableGroup": true,
+      "enableResponseCode": true
+    },
+    "x-markdownFiles": []
+  }
+}

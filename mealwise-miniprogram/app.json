@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/day/day",
+    "pages/foods/foods",
+    "pages/meal/meal",
+    "pages/profile/profile",
+    "pages/login/login"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#3fb37d",
+    "navigationBarTitleText": "Mealwise",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7f6",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#8a9a92",
+    "selectedColor": "#237b53",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/day/day", "text": "今日" },
+      { "pagePath": "pages/foods/foods", "text": "食物库" },
+      { "pagePath": "pages/meal/meal", "text": "记录一餐" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

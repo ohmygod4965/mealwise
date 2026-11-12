@@ -1,0 +1,1 @@
+import{a6 as e}from"./index-DgZnv0LT.js";function n(o,t){var d;return e.get("/foods",{keyword:((d=o.keyword)==null?void 0:d.trim())||void 0,category:o.category||void 0,page:o.page??1,size:o.size??10},t)}function u(o){return e.post("/foods",o)}function i(o,t){return e.put(`/foods/${o}`,t)}function s(o){return e.delete(`/foods/${o}`)}export{u as c,s as d,n as g,i as u};

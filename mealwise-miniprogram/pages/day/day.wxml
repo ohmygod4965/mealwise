@@ -1,0 +1,108 @@
+<view class="page">
+
+  <!-- 日期切换 -->
+  <view class="datebar">
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="datebar__date">{{date}} ▾</view>
+    </picker>
+    <view class="datebar__today" wx:if="{{!isToday}}" bindtap="goToday">回到今天</view>
+    <view class="datebar__spacer" wx:else></view>
+    <view class="datebar__cal" wx:if="{{totals}}">{{totals.calories}} kcal</view>
+  </view>
+
+  <!-- 加载 / 失败 -->
+  <view class="empty" wx:if="{{loading}}">加载中…</view>
+  <view class="card" wx:elif="{{error}}">
+    <view class="empty">{{error}}</view>
+    <button class="btn-ghost" bindtap="retry">重试</button>
+  </view>
+
+  <block wx:else>
+    <!-- 未填资料引导 -->
+    <view class="card guide" wx:if="{{!targets}}">
+      <view class="guide__title">先完善身体信息</view>
+      <view class="muted">填写性别 / 身高 / 体重后，才能算出每日建议摄入并做对比。</view>
+      <button class="btn-primary guide__btn" bindtap="goProfile">去填写</button>
+    </view>
+
+    <!-- 今日合计 -->
+    <view class="card">
+      <view class="card__title">
+        <text>今日摄入</text>
+        <text class="muted">{{date}}</text>
+      </view>
+      <view class="totals">
+        <view class="totals__item">
+          <view class="totals__value">{{totals.calories}}</view>
+          <view class="totals__label">热量 kcal</view>
+        </view>
+        <view class="totals__item">
+          <view class="totals__value">{{totals.protein}}</view>
+          <view class="totals__label">蛋白 g</view>
+        </view>
+        <view class="totals__item">
+          <view class="totals__value">{{totals.fat}}</view>
+          <view class="totals__label">脂肪 g</view>
+        </view>
+        <view class="totals__item">
+          <view class="totals__value">{{totals.carb}}</view>
+          <view class="totals__label">碳水 g</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 摄入 vs 建议 -->
+    <view class="card" wx:if="{{targets}}">
+      <view class="card__title">
+        <text>摄入 vs 建议</text>
+        <text class="muted">建议 {{targets.calories}} kcal</text>
+      </view>
+
+      <view class="metric" wx:for="{{metrics}}" wx:key="key">
+        <view class="metric__head">
+          <text class="metric__label">{{item.label}}</text>
+          <text class="tag tag--{{item.statusClass}}">{{item.statusLabel}}</text>
+        </view>
+        <view class="bar">
+          <view class="bar__fill bar__fill--{{item.statusClass}}" style="width: {{item.width}}%"></view>
+        </view>
+        <view class="metric__foot">
+          <text class="muted">{{item.intake}} / {{item.target}} {{item.unit}}（{{item.percent}}%）</text>
+          <text class="muted">{{item.diffText}}</text>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+      <view class="muted">{{targets.formula}}</view>
+      <view class="muted" wx:for="{{assumptions}}" wx:key="*this">· {{item}}</view>
+    </view>
+
+    <!-- 三餐分区 -->
+    <view class="card" wx:for="{{groups}}" wx:key="type" wx:for-item="group">
+      <view class="card__title">
+        <text>{{group.label}}</text>
+        <text class="muted" wx:if="{{group.calories}}">{{group.calories}} kcal</text>
+      </view>
+
+      <block wx:if="{{group.meals.length}}">
+        <view class="meal" wx:for="{{group.meals}}" wx:key="mealId" wx:for-item="meal">
+          <view class="meal__head">
+            <text class="muted">{{meal.time}}</text>
+            <text class="meal__cal">{{meal.total.calories}} kcal</text>
+          </view>
+          <view class="item" wx:for="{{meal.items}}" wx:key="itemId" wx:for-item="food">
+            <text class="item__name">{{food.foodName}}</text>
+            <text class="muted">{{food.quantityG}}g</text>
+            <text class="item__cal">{{food.calories}} kcal</text>
+          </view>
+          <view class="meal__micro muted">
+            蛋白 {{meal.total.protein}}g · 脂肪 {{meal.total.fat}}g · 碳水 {{meal.total.carb}}g
+          </view>
+        </view>
+      </block>
+
+      <view class="empty" wx:else>还没有记录{{group.label}}</view>
+      <button class="btn-ghost meal__add" data-type="{{group.type}}" bindtap="goMeal">去记录{{group.label}}</button>
+    </view>
+  </block>
+</view>

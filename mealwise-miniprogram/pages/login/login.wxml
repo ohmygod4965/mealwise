@@ -1,0 +1,38 @@
+<view class="login">
+  <view class="login__brand">
+    <view class="login__logo">M</view>
+    <view class="login__name">Mealwise</view>
+    <view class="login__tagline">吃得更明白</view>
+  </view>
+
+  <view class="card login__card">
+    <view class="login__tabs">
+      <view class="login__tab {{mode === 'login' ? 'is-active' : ''}}" bindtap="switchMode">登录</view>
+      <view class="login__tab {{mode === 'register' ? 'is-active' : ''}}" bindtap="switchMode">注册</view>
+    </view>
+
+    <view class="field">
+      <view class="field__label">用户名</view>
+      <input class="field__input" data-field="username" value="{{username}}" bindinput="onInput"
+             placeholder="4-50 位字母、数字或下划线" />
+    </view>
+
+    <view class="field">
+      <view class="field__label">密码</view>
+      <input class="field__input" password data-field="password" value="{{password}}" bindinput="onInput"
+             placeholder="8-32 位，含字母和数字" />
+    </view>
+
+    <view class="field" wx:if="{{mode === 'register'}}">
+      <view class="field__label">过敏原（可选，逗号分隔）</view>
+      <input class="field__input" data-field="allergens" value="{{allergens}}" bindinput="onInput"
+             placeholder="例如：egg,dairy" />
+    </view>
+
+    <button class="btn-primary" loading="{{loading}}" disabled="{{loading}}" bindtap="submit">
+      {{mode === 'login' ? '登录' : '注册'}}
+    </button>
+
+    <view class="login__hint">演示账号 demo / Demo@123</view>
+  </view>
+</view>

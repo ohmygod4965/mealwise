@@ -1,0 +1,61 @@
+<view class="page">
+
+  <!-- 餐次选择 -->
+  <view class="types">
+    <view class="type {{mealType === item.value ? 'is-active' : ''}}"
+          wx:for="{{mealTypes}}" wx:key="value" wx:for-item="item"
+          data-value="{{item.value}}" bindtap="onTypeChange">{{item.label}}</view>
+  </view>
+
+  <!-- 搜索食物 -->
+  <view class="search">
+    <input class="search__input" value="{{keyword}}" bindinput="onKeyword" bindconfirm="search"
+           placeholder="搜索食物，如 米饭" confirm-type="search" />
+    <view class="search__btn" bindtap="search">搜索</view>
+  </view>
+
+  <view class="card" wx:if="{{results.length}}">
+    <view class="card__title">搜索结果</view>
+    <view class="result" wx:for="{{results}}" wx:key="id" wx:for-item="food">
+      <view class="result__main">
+        <view class="result__name">{{food.name}}</view>
+        <view class="muted">{{food.category}} · {{food.caloriesPer100g}} kcal/100g</view>
+      </view>
+      <view class="result__add" data-id="{{food.id}}" data-name="{{food.name}}" bindtap="addFood">+ 100g</view>
+    </view>
+    <view class="empty" wx:if="{{searching}}">搜索中…</view>
+  </view>
+
+  <!-- 当前这一餐 -->
+  <view class="card">
+    <view class="card__title">
+      <text>这一餐</text>
+      <text class="muted" wx:if="{{items.length}}">{{items.length}} 项</text>
+    </view>
+
+    <view class="line" wx:for="{{items}}" wx:key="itemId" wx:for-item="item">
+      <view class="line__main">
+        <view class="line__name">{{item.foodName}}</view>
+        <view class="muted">{{item.calories}} kcal · 蛋白 {{item.protein}} · 脂肪 {{item.fat}} · 碳水 {{item.carb}}</view>
+      </view>
+      <view class="line__qty">
+        <input class="qty" type="digit" value="{{item.quantityG}}" data-id="{{item.itemId}}"
+               bindblur="onQtyBlur" />
+        <text class="muted">g</text>
+      </view>
+      <view class="line__del" data-id="{{item.itemId}}" bindtap="removeItem">删除</view>
+    </view>
+
+    <view class="empty" wx:if="{{!items.length}}">还没有食物，先在上面搜索并添加</view>
+  </view>
+
+  <!-- 底部合计 -->
+  <view class="footer">
+    <view class="footer__sum">
+      <text class="footer__cal">{{total.calories}}</text>
+      <text class="muted"> kcal</text>
+      <view class="muted">蛋白 {{total.protein}} · 脂肪 {{total.fat}} · 碳水 {{total.carb}}</view>
+    </view>
+    <button class="btn-primary footer__btn" bindtap="finish">完成并查看今日</button>
+  </view>
+</view>

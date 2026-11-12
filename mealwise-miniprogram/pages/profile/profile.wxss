@@ -1,0 +1,29 @@
+.field {
+  margin-bottom: 26rpx;
+}
+
+.field__label {
+  font-size: 24rpx;
+  color: #6b7a72;
+  margin-bottom: 10rpx;
+}
+
+.field__input {
+  background: #f6f8f7;
+  border-radius: 14rpx;
+  padding: 22rpx 20rpx;
+  font-size: 28rpx;
+}
+
+.radios {
+  display: flex;
+  gap: 40rpx;
+  padding: 12rpx 0;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+}

@@ -1,0 +1,955 @@
+{
+  "info": {
+    "name": "Mealwise API",
+    "description": "一餐热量与替换推荐。\n\n用法：导入后选「运行」或「自动化测试」→ 先跑 01-登录（会把 token 写入环境变量）→ 其余请求自动带 Bearer。\n\n环境变量：baseUrl（默认 http://localhost:8080）、token、mealId、itemId、foodId。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "mealId",
+      "value": ""
+    },
+    {
+      "key": "itemId",
+      "value": ""
+    },
+    {
+      "key": "foodId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "00 健康检查",
+      "item": [
+        {
+          "name": "OpenAPI 可访问",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v3",
+                "api-docs"
+              ]
+            },
+            "description": "不需要认证；返回 200 说明服务已启动。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"含 paths\", () => pm.expect(Object.keys(pm.response.json().paths).length).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 认证",
+      "item": [
+        {
+          "name": "登录（保存 token）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "默认演示账号 demo / Demo@123。成功后把 token 写入环境变量，后续请求自动带上。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"Demo@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"业务码 200\", () => pm.expect(body.code).to.eql(200));",
+                  "pm.test(\"返回 token\", () => pm.expect(body.data.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.environment.set(\"token\", body.data.token);",
+                  "console.log(\"token 已写入环境变量\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "注册（重复用户应 409）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "用已存在的 demo 注册，期望 409；换成随机用户名则 200。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"demo\",\n  \"password\": \"Demo@123\",\n  \"allergens\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409 或 200\", () => pm.expect([200, 409]).to.include(pm.response.status));",
+                  "pm.test(\"code 与状态码一致\", () => pm.expect(pm.response.json().code).to.eql(pm.response.status));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "当前用户",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            },
+            "description": "返回资料与 profileComplete。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "更新身体资料",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "profile"
+              ]
+            },
+            "description": "身高 100-250、体重 30-300、年龄可选。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gender\": \"MALE\",\n  \"heightCm\": 175,\n  \"weightKg\": 70,\n  \"age\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"profileComplete=true\", () => pm.expect(pm.response.json().data.profileComplete).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 食物库",
+      "item": [
+        {
+          "name": "分页列表（保存首个 foodId）",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/foods?page=1&size=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "foods?page=1&size=5"
+              ]
+            },
+            "description": "把第一条食物的 id 存进 foodId，供后续「添加食物项」使用。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "const list = pm.response.json().data.records;",
+                  "pm.test(\"至少一条食物\", () => pm.expect(list.length).to.be.above(0));",
+                  "if (list.length) pm.environment.set(\"foodId\", list[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "关键词搜索：米饭",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/foods?keyword=%E7%B1%B3%E9%A5%AD",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "foods?keyword=%E7%B1%B3%E9%A5%AD"
+              ]
+            },
+            "description": "验收用例里的主食基准。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"命中米饭\", () => pm.expect(pm.response.json().data.records.some(f => f.name === \"米饭\")).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "新增食物",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/foods",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "foods"
+              ]
+            },
+            "description": "创建一条测试食物（重复执行会产生多条同名记录）。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"接口测试食物\",\n  \"category\": \"主食\",\n  \"caloriesPer100g\": 200,\n  \"proteinPer100g\": 5,\n  \"fatPer100g\": 2,\n  \"carbPer100g\": 40,\n  \"unitName\": \"份\",\n  \"unitWeightG\": 100,\n  \"allergens\": [],\n  \"enabled\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "非法删除不存在食物 → 404",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/foods/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "foods",
+                "999999"
+              ]
+            },
+            "description": "验证统一错误码与 404 语义。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"code=404\", () => pm.expect(pm.response.json().code).to.eql(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 餐次与热量",
+      "item": [
+        {
+          "name": "创建餐次（保存 mealId）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals"
+              ]
+            },
+            "description": "mealType: BREAKFAST/LUNCH/DINNER/SNACK。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mealType\": \"LUNCH\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.environment.set(\"mealId\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "添加食物项（保存 itemId）",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "items"
+              ]
+            },
+            "description": "使用上一步保存的 foodId；克数必须 > 0。",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"foodId\": \"{{foodId}}\",\n  \"quantityG\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.environment.set(\"itemId\", d.itemId);",
+                  "pm.test(\"热量已换算\", () => pm.expect(d.calories).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "热量计算",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/calories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "calories"
+              ]
+            },
+            "description": "返回明细与合计（热量/蛋白/脂肪/碳水，1 位小数）。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"有合计\", () => pm.expect(pm.response.json().data.total.calories).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "修改克数",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantityG\": 150\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"克数已更新\", () => pm.expect(pm.response.json().data.quantityG).to.eql(150));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "替换建议 higher",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/replacements?strategy=higher",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "replacements?strategy=higher"
+              ]
+            },
+            "description": "无候选时 suggestions 为空 + message 有值，仍是 200。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "const data = pm.response.json().data;",
+                  "pm.test(\"每组最多 3 条\", () => data.items.every(i => i.suggestions.length <= 3));",
+                  "pm.test(\"建议均为同类别\", () => data.items.every(i => i.suggestions.every(s => s.category === i.originalFood.category)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "替换建议 lower",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/replacements?strategy=lower",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "replacements?strategy=lower"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"delta 为负\", () => pm.response.json().data.items.every(i => i.suggestions.every(s => s.deltaCalories < 0)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "删除食物项",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 日记录",
+      "item": [
+        {
+          "name": "今日记录",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/days/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "days",
+                "today"
+              ]
+            },
+            "description": "今日三餐聚合 + 合计 + 目标对比；资料不全时 targets 为 null。"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "const d = pm.response.json().data;",
+                  "pm.test(\"有日期\", () => pm.expect(d.date).to.match(/^\\d{4}-\\d{2}-\\d{2}$/));",
+                  "pm.test(\"targets 与 comparison 同时有值或同时为空\", () => pm.expect(Boolean(d.targets)).to.eql(Boolean(d.comparison)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "指定日期（空日期也应 200）",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/days/2020-01-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "days",
+                "2020-01-01"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"业务码 200\", () => pm.expect(pm.response.json().code).to.eql(200));",
+                  "pm.test(\"空天的 meals 为空\", () => pm.expect(pm.response.json().data.meals.length).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 异常与鉴权",
+      "item": [
+        {
+          "name": "未登录访问 → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/calories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "calories"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"code=401\", () => pm.expect(pm.response.json().code).to.eql(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "非法策略 → 400",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/replacements?strategy=whatever",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "replacements?strategy=whatever"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "克数为 0 → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/meals/{{mealId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "meals",
+                "{{mealId}}",
+                "items"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"foodId\": \"{{foodId}}\",\n  \"quantityG\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
